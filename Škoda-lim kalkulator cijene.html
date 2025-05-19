@@ -1,0 +1,104 @@
+<form id="roof-calculator">
+  <div>
+    <label for="roofWidth">Širina krova (m):</label>
+    <input type="number" id="roofWidth" min="0" step="0.01" value="0" required>
+  </div>
+  <div>
+    <label for="roofLength">Dužina krova (m):</label>
+    <input type="number" id="roofLength" min="0" step="0.01" value="0" required>
+  </div>
+  <div>
+    <label for="product">Tip ploče:</label>
+    <select id="product">
+      <!-- efektivne širine iz presjeka -->
+      <option value="T18" data-width="1.100" data-price="9">
+        Trapez T18 – 9 €/m² (ef. širina 1,100 m)
+      </option>
+      <option value="T35" data-width="1.060" data-price="11">
+        Trapez T35 – 11 €/m² (ef. širina 1,060 m)
+      </option>
+      <option value="CRIJEP" data-width="1.105" data-price="10">
+        Imitacija crijepa – 10 €/m² (ef. širina 1,105 m)
+      </option>
+    </select>
+  </div>
+  <div>
+    <label><input type="checkbox" id="addFilc"> + FILC (+ 1 €/m²)</label>
+  </div>
+  <div>
+    <label><input type="checkbox" id="addMat"> Mat boja (+ 0,50 €/m²)</label>
+  </div>
+
+  <hr>
+
+  <p>Broj ploča: <span id="numPanels">0</span></p>
+  <p>Ukupna površina: <span id="totalArea">0,00</span> m²</p>
+  <p>Ukupna cijena: <strong><span id="totalPrice">0,00</span> €</strong></p>
+
+  <button type="button" id="calculate">Izračunaj</button>
+</form>
+
+<script>
+document.getElementById('calculate').addEventListener('click', () => {
+  // 1) Ulazi
+  const roofW = parseFloat(document.getElementById('roofWidth').value)  || 0;
+  const roofL = parseFloat(document.getElementById('roofLength').value) || 0;
+  const sel   = document.getElementById('product').selectedOptions[0];
+  const panelW    = parseFloat(sel.dataset.width);   // efektivna širina
+  const basePrice = parseFloat(sel.dataset.price);   // €/m2
+
+  // 2) Dodaci
+  const extraFilc = document.getElementById('addFilc').checked ? 1.00 : 0;
+  const extraMat  = document.getElementById('addMat').checked  ? 0.50 : 0;
+
+  // 3) Koliko ploča treba (zaokruženo gore)
+  const numPanels = Math.ceil(roofW / panelW);
+
+  // 4) Površina jedne ploče i ukupno
+  const areaPer   = panelW * roofL;
+  const totalArea = areaPer * numPanels;
+
+  // 5) Cijena po m2 + dodaci
+  const unitPrice  = basePrice + extraFilc + extraMat;
+  const totalPrice = totalArea * unitPrice;
+
+  // 6) Ispis
+  document.getElementById('numPanels').textContent  = numPanels;
+  document.getElementById('totalArea').textContent  = totalArea.toFixed(2);
+  document.getElementById('totalPrice').textContent = totalPrice.toFixed(2);
+});
+</script>
+
+
+<script>
+document.getElementById('calculate').addEventListener('click', function(){
+  // 1. Učitaj inpute
+  const roofW = parseFloat(document.getElementById('roofWidth').value)  || 0;  // m
+  const roofL = parseFloat(document.getElementById('roofLength').value) || 0;  // m
+
+  // 2. Odabrani proizvod → širina i osnovna cijena
+  const prodOpt = document.getElementById('product').selectedOptions[0];
+  const panelW = parseFloat(prodOpt.dataset.width);   // m
+  const basePrice = parseFloat(prodOpt.dataset.price); // €/m2
+
+  // 3. Dodaci
+  const filc = document.getElementById('addFilc').checked ? 1.00 : 0;
+  const mat  = document.getElementById('addMat').checked  ? 0.50 : 0;
+
+  // 4. Izračun broja ploča
+  const numPanels = Math.ceil( roofW / panelW );
+
+  // 5. Površina jedne ploče (m2) i ukupna površina
+  const areaPerPanel = panelW * roofL;
+  const totalArea = areaPerPanel * numPanels;
+
+  // 6. Konačna cijena
+  const unitPrice = basePrice + filc + mat;       // €/m2
+  const totalPrice = totalArea * unitPrice;       // €
+
+  // 7. Prikaz rezultate
+  document.getElementById('numPanels').textContent  = numPanels;
+  document.getElementById('totalArea').textContent  = totalArea.toFixed(2);
+  document.getElementById('totalPrice').textContent = totalPrice.toFixed(2);
+});
+</script>
